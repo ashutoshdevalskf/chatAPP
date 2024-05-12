@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat Rooms</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand" href="#">Chat Rooms</a>
+    </nav>
+
+    <div class="container mt-3">
+        <h2>Chat Rooms</h2>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">Username</th>
+                        <th scope="col">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="user-list">
+                    <!-- User list will be added here dynamically -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <script>
+        // Fetch the list of users from your server
+        fetch('http://localhost:3000/api/users', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + localStorage.getItem('token') // Use the token from local storage
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            var userList = document.getElementById('user-list');
+            data.users.forEach(user => {
+                var row = document.createElement('tr');
+                var usernameCell = document.createElement('td');
+                usernameCell.textContent = user.username;
+                row.appendChild(usernameCell);
+                var actionsCell = document.createElement('td');
+                var chatButton = document.createElement('button');
+                chatButton.textContent = 'Chat';
+                chatButton.classList.add('btn', 'btn-primary', 'btn-sm', 'ml-2');
+                chatButton.onclick = function() {
+                    // Save the user ID to local storage
+                    localStorage.setItem('chatUserId', user._id);
+                    // Redirect to the chat page with receiver and room IDs
+                    window.location.href = `/chat.html?receiver=${user._id}&room=${user._id}`; // Assuming user.chatRoomId contains the chat room ID
+                };
+                actionsCell.appendChild(chatButton);
+                row.appendChild(actionsCell);
+                userList.appendChild(row);
+            });
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+    </script>
+</body>
+</html>

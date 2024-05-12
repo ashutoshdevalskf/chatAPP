@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-3">
+        <h2>Chat Room</h2>
+        <div id="chat-messages"></div>
+        <form id="chat-form">
+            <input id="message-input" autocomplete="off" />
+            <button type="submit">Send</button>
+        </form>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        var socket = io();
+
+        // Get receiver ID and room ID from URL query parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const receiverId = urlParams.get('receiver');
+        const roomId = urlParams.get('room');
+
+        // Send chat message
+        document.getElementById("chat-form").addEventListener("submit", function(event) {
+            event.preventDefault();
+            const input = document.getElementById("message-input");
+            const message = input.value.trim();
+            if (message) {
+                socket.emit("chat message", { receiver: receiverId, content: message, chatRoom: roomId });
+                input.value = "";
+            }
+        });
+
+        // Receive chat message
+        socket.on("chat message", function(msg) {
+            var messageElement = document.createElement("div");
+            messageElement.textContent = msg.content;
+            document.getElementById("chat-messages").appendChild(messageElement);
+        });
+    </script>
+</body>
+</html>
